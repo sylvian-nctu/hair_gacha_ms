@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皇家美髮院</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .title-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .title-section h1 {
+            margin-bottom: 5px;
+        }
+        .author-info {
+            color: #666;
+            font-size: 0.95em;
+            margin: 5px 0 20px 0;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .draw-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .draw-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .draw-100-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .draw-100-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: relative;
+        }
+        .result img {
+            max-width: 200px;
+            max-height: 200px;
+            display: block;
+            margin: 10px 0;
+        }
+        .rare-history {
+            margin-top: 20px;
+        }
+        .rare-history-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .rare-item {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        .rare-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        .probability-table {
+            margin-top: 20px;
+        }
+        .probability-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .probability-item {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            width: 24%;
+        }
+        .probability-item img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        .rare-animation {
+            animation: glow 1s ease-in-out infinite alternate;
+            background-color: rgba(255, 215, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FFD700;
+            }
+            to {
+                box-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FFD700;
+            }
+        }
+        @media (max-width: 768px) {
+            .probability-row {
+                flex-wrap: wrap;
+            }
+            .probability-item {
+                width: 49%;
+                margin-bottom: 10px;
+            }
+        }
+        @media (max-width: 600px) {
+            .rare-history-container {
+                grid-template-columns: 1fr;
+            }
+            .probability-item {
+                width: 100%;
+            }
+        }
+        .summary {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+        }
+        .summary ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .summary li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-section">
+            <h1>皇家美髮院</h1>
+            <div class="author-info">作者: 芯羽o月 (優區)</div>
+        </div>
+        
+        <div class="controls">
+            <button class="draw-btn" onclick="drawHairstyle()">抽1張皇家美髮券 (NT:60)</button>
+            <button class="draw-100-btn" onclick="draw100Times()">抽100張皇家美髮券 (NT:5400)</button>
+            <button class="reset-btn" onclick="reset()">重置</button>
+            <span>總抽數: <span id="drawCount">0</span></span>
+        </div>
+
+        <div id="result" class="result" style="display: none;">
+            <h3>比特愛德華:</h3>
+            <div id="resultContent"></div>
+            <div id="summary" class="summary" style="display: none;"></div>
+        </div>
+
+        <div class="rare-history">
+            <h3>主打髮型記錄:</h3>
+            <div id="rareHistory"></div>
+        </div>
+
+        <div class="probability-table">
+            <h3>機率表:</h3>
+            <div id="probabilityTable"></div>
+        </div>
+    </div>
+
+    <script>
+        const hairstyles = [
+            { name: '黑色薄長雙馬尾', probability: 1.50, image: 'image/01.png' },
+            { name: '黑色欣蒂髮型', probability: 1.50, image: 'image/02.png' },
+            { name: '黑色長髮', probability: 6.00, image: 'image/03.png' },
+            { name: '黑色逗號造型', probability: 6.00, image: 'image/04.png' },
+            { name: '黑色球球髮型', probability: 6.00, image: 'image/05.png' },
+            { name: '黑色甜蜜瀏海造型', probability: 6.00, image: 'image/06.png' },
+            { name: '黑色高綁造型', probability: 6.00, image: 'image/07.png' },
+            { name: '黑色露琪亞造型', probability: 13.40, image: 'image/08.png' },
+            { name: '黑色海草燙捲造型', probability: 13.40, image: 'image/09.png' },
+            { name: '黑色佛羅拉造型', probability: 13.40, image: 'image/10.png' },
+            { name: '黑色中國風情造型', probability: 13.40, image: 'image/11.png' },
+            { name: '黑色澎澎尾捲造型', probability: 13.40, image: 'image/12.png' }
+        ];
+
+        let drawCount = 0;
+        let rareHistory = [];
+        let lastResult = null;
+
+        function getRandomHairstyle() {
+            let result = null;
+            let attempts = 0;
+            const maxAttempts = 100;
+
+            do {
+                const random = Math.random() * 100;
+                let sum = 0;
+
+                for (const hairstyle of hairstyles) {
+                    sum += hairstyle.probability;
+                    if (random <= sum) {
+                        result = hairstyle;
+                        break;
+                    }
+                }
+
+                attempts++;
+                if (attempts >= maxAttempts) break;
+            } while (lastResult && result.name === lastResult.name);
+
+            return result;
+        }
+
+        function drawHairstyle() {
+            const result = getRandomHairstyle();
+            lastResult = result;
+            drawCount++;
+            document.getElementById('drawCount').textContent = drawCount;
+
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            const summaryDiv = document.getElementById('summary');
+            resultDiv.style.display = 'block';
+            summaryDiv.style.display = 'none';
+
+            const isRare = result.probability < 3;
+            
+            resultContent.innerHTML = `
+                ${isRare ? '<div class="rare-animation">恭喜抽中主打髮型！</div>' : ''}
+                <p>恭喜獲得: ${result.name}</p>
+                <p>機率: ${result.probability}%</p>
+                <img src="${result.image}" alt="${result.name}" onerror="this.src='image/default.png'">
+            `;
+
+            if (isRare) {
+                rareHistory.push({
+                    name: result.name,
+                    probability: result.probability,
+                    drawNumber: drawCount,
+                    image: result.image
+                });
+                updateRareHistory();
+            }
+        }
+
+        async function draw100Times() {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => button.disabled = true);
+
+            const results = new Map();
+            const rareResults = [];
+
+            for (let i = 0; i < 100; i++) {
+                const result = getRandomHairstyle();
+                lastResult = result;
+                drawCount++;
+                
+                results.set(result.name, (results.get(result.name) || 0) + 1);
+                
+                if (result.probability < 3) {
+                    rareResults.push({
+                        name: result.name,
+                        probability: result.probability,
+                        drawNumber: drawCount,
+                        image: result.image
+                    });
+                }
+
+                document.getElementById('drawCount').textContent = drawCount;
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            const summaryDiv = document.getElementById('summary');
+            resultDiv.style.display = 'block';
+            summaryDiv.style.display = 'block';
+
+            rareResults.forEach(rare => rareHistory.push(rare));
+            updateRareHistory();
+
+            let summaryHTML = '<h3>100抽統計結果:</h3>';
+            
+            summaryHTML += '<div style="color: red; margin-bottom: 10px;">';
+            summaryHTML += '<strong>主打髮型:</strong><ul>';
+            for (const [name, count] of results) {
+                const hairstyle = hairstyles.find(h => h.name === name);
+                if (hairstyle.probability < 3) {
+                    summaryHTML += `<li>${name}: ${count}次 (${hairstyle.probability}%)</li>`;
+                }
+            }
+            summaryHTML += '</ul></div>';
+
+            summaryHTML += '<div><strong>其他髮型:</strong><ul>';
+            for (const [name, count] of results) {
+                const hairstyle = hairstyles.find(h => h.name === name);
+                if (hairstyle.probability >= 3) {
+                    summaryHTML += `<li>${name}: ${count}次 (${hairstyle.probability}%)</li>`;
+                }
+            }
+            summaryHTML += '</ul></div>';
+
+            if (rareResults.length > 0) {
+                summaryHTML += `<p style="color: red; font-weight: bold; margin-top: 10px;">本次抽中 ${rareResults.length} 次主打髮型！</p>`;
+            }
+
+            resultContent.innerHTML = '<抽獎結果僅供娛樂>';
+            summaryDiv.innerHTML = summaryHTML;
+
+            buttons.forEach(button => button.disabled = false);
+        }
+
+        function updateRareHistory() {
+            const historyDiv = document.getElementById('rareHistory');
+            historyDiv.innerHTML = `
+                <div class="rare-history-container">
+                    ${rareHistory.map(item => `
+                        <div class="rare-item">
+                            <img src="${item.image}" alt="${item.name}" onerror="this.src='image/default.png'">
+                            <div>
+                                第 ${item.drawNumber} 抽: ${item.name} (機率: ${item.probability}%)
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function reset() {
+            drawCount = 0;
+            rareHistory = [];
+            lastResult = null;
+            document.getElementById('drawCount').textContent = '0';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('rareHistory').innerHTML = '';
+        }
+
+        function initProbabilityTable() {
+            const tableDiv = document.getElementById('probabilityTable');
+            let html = '';
+            
+            // 每4個項目為一組
+            for(let i = 0; i < hairstyles.length; i += 4) {
+                html += '<div class="probability-row">';
+                
+                // 處理這一行的4個項目
+                for(let j = 0; j < 4 && i + j < hairstyles.length; j++) {
+                    const style = hairstyles[i + j];
+                    html += `
+                        <div class="probability-item">
+                            <img src="${style.image}" alt="${style.name}" onerror="this.src='image/default.png'">
+                            <div>
+                                <div>${style.name}</div>
+                                <div>${style.probability}%</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+            }
+            
+            tableDiv.innerHTML = html;
+        }
+
+        initProbabilityTable();
+    </script>
+</body>
+</html>
