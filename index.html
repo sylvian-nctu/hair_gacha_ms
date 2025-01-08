@@ -200,15 +200,8 @@
         </div>
     </div>
 
+    <script src="data/20250108.js"></script>
     <script>
-        fetch('./data/20241127.txt')
-            .then(response => response.text())
-            .then(data => {
-                eval(data);
-                initProbabilityTable();
-            })
-            .catch(error => console.error('Error loading hairstyles:', error));
-
         let drawCount = 0;
         let rareHistory = [];
         let lastResult = null;
@@ -365,11 +358,9 @@
             const tableDiv = document.getElementById('probabilityTable');
             let html = '';
             
-            // 每4個項目為一組
             for(let i = 0; i < hairstyles.length; i += 4) {
                 html += '<div class="probability-row">';
                 
-                // 處理這一行的4個項目
                 for(let j = 0; j < 4 && i + j < hairstyles.length; j++) {
                     const style = hairstyles[i + j];
                     html += `
@@ -389,6 +380,7 @@
             tableDiv.innerHTML = html;
         }
 
+        // Initialize the probability table when the page loads
         initProbabilityTable();
     </script>
 </body>
