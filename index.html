@@ -201,20 +201,13 @@
     </div>
 
     <script>
-        const hairstyles = [
-            { name: '黑色薄長雙馬尾', probability: 1.50, image: 'image/01.png' },
-            { name: '黑色欣蒂髮型', probability: 1.50, image: 'image/02.png' },
-            { name: '黑色長髮', probability: 6.00, image: 'image/03.png' },
-            { name: '黑色逗號造型', probability: 6.00, image: 'image/04.png' },
-            { name: '黑色球球髮型', probability: 6.00, image: 'image/05.png' },
-            { name: '黑色甜蜜瀏海造型', probability: 6.00, image: 'image/06.png' },
-            { name: '黑色高綁造型', probability: 6.00, image: 'image/07.png' },
-            { name: '黑色露琪亞造型', probability: 13.40, image: 'image/08.png' },
-            { name: '黑色海草燙捲造型', probability: 13.40, image: 'image/09.png' },
-            { name: '黑色佛羅拉造型', probability: 13.40, image: 'image/10.png' },
-            { name: '黑色中國風情造型', probability: 13.40, image: 'image/11.png' },
-            { name: '黑色澎澎尾捲造型', probability: 13.40, image: 'image/12.png' }
-        ];
+        fetch('./data/20241127.txt')
+            .then(response => response.text())
+            .then(data => {
+                eval(data);
+                initProbabilityTable();
+            })
+            .catch(error => console.error('Error loading hairstyles:', error));
 
         let drawCount = 0;
         let rareHistory = [];
