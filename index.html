@@ -200,15 +200,8 @@
         </div>
     </div>
 
+    <script src="data/20250108.js"></script>
     <script>
-        fetch('data/20250108.txt')
-            .then(response => response.text())
-            .then(data => {
-                eval(data);
-                initProbabilityTable();
-            })
-            .catch(error => console.error('Error loading hairstyles:', error));
-
         let drawCount = 0;
         let rareHistory = [];
         let lastResult = null;
@@ -387,6 +380,7 @@
             tableDiv.innerHTML = html;
         }
 
+        // Initialize the probability table when the page loads
         initProbabilityTable();
     </script>
 </body>
